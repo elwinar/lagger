@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const SearchResponseSchema = z.object({
+export const SearchSchema = z.object({
 	_shards: z.object({
 		failed: z.number(),
 		skipped: z.number(),
@@ -33,4 +33,21 @@ export const SearchResponseSchema = z.object({
 	took: z.number(),
 });
 
-export type SearchResponse = z.infer<typeof SearchResponseSchema>;
+export type Search = z.infer<typeof SearchSchema>;
+
+export const PropertySchema = z.object({
+	type: z.string(),
+});
+
+export type Property = z.infer<typeof PropertySchema>;
+
+export const MappingSchema = z.record(
+	z.string(),
+	z.object({
+		mappings: z.object({
+			properties: z.record(z.string(), PropertySchema),
+		}),
+	}),
+);
+
+export type Mapping = z.infer<typeof MappingSchema>;
