@@ -6,8 +6,9 @@ import { SearchResponseSchema} from "@/elasticsearch"
 const indices = debouncedRef("vector-*", 1000)
 const search = debouncedRef("", 1000)
 const result = ref([])
+const refreshCounter = ref(0)
 
-watch([search, indices], async () => {
+watch([search, indices, refreshCounter], async () => {
   result.value = await fetch(`${window.config.elasticsearch_url}/${indices.value}/_search`, {
     method: "POST",
     headers: {
@@ -24,6 +25,10 @@ watch([search, indices], async () => {
   .then(body => SearchResponseSchema.parse(body))
   .then(res => res.hits.hits)
 })
+
+function refresh() {
+  refreshCounter.value += 1
+}
 </script>
 
 <template>
@@ -31,6 +36,7 @@ watch([search, indices], async () => {
   <p>Something something, MALT.</p>
   <input type="text" v-model="indices" />
   <input type="text" placeholder="search" v-model="search" debounce="500" />
+  <button @click="refresh">refresh</button>
   <table>
     <tr v-for="r in result">
       <td>{{ r._source }}</td>
